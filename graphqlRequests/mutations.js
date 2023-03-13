@@ -9,9 +9,9 @@ function startEdit(orderId) {
     return startMutation
 };
 
-function addVariantToOrder(calcultedOrderId) {
+function addVariantToOrder(calcultedOrderId, variantId) {
     const addVariantToOrderMutation = `mutation addVariantToOrder{
-        orderEditAddVariant(id: ${calcultedOrderId}, variantId: "gid://shopify/ProductVariant/44695914873106", quantity: 1){
+        orderEditAddVariant(id: ${calcultedOrderId}, variantId: "${variantId}", quantity: 1){
           calculatedOrder {
             id
             addedLineItems(first:5) {

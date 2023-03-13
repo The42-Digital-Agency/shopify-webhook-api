@@ -13,4 +13,18 @@ function getOrder() {
     return getOrderQuery;
 }
 
-module.exports = getOrder;
+function getProduct(reqData) {
+  const getProductQuery = `{
+      products (first:1, query:"sku:${reqData}") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+  `;
+  return getProductQuery;
+}
+
+module.exports = {getOrder, getProduct};

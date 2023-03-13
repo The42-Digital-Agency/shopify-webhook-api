@@ -5,8 +5,8 @@ const getOrder = require('../graphqlRequests/queries');
 class MainController {
     async getWebHook(req, res) {
         try {
-            if (req.body.discount_applications[0].code) {
-                res.status(200);
+            if ((req.body.discount_codes).length > 0) {
+                res.status(200).send();
 
                 const fetchEditOrder = async (args) => {
                     let lastOrderId = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(args))
@@ -20,6 +20,8 @@ class MainController {
                             }
                         });
 
+                        
+
                     let editOrder = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(startEdit(await lastOrderId)))
                         .then(res => res.json())
                         .then(response => {
@@ -31,7 +33,7 @@ class MainController {
                             }
                         });
 
-                    fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(addVariantToOrder(await editOrder)))
+                    const orderEdit = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(addVariantToOrder(await editOrder, "gid://shopify/ProductVariant/44695914873106")))
                         .then(res => res.json())
                         .then(response => {
                             try {
@@ -41,6 +43,7 @@ class MainController {
                                 res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
                             }
                         });
+                        console.log('Последний заказ был успешно отредактирован',await orderEdit);
                     let commitOrder = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(commitEdit(await editOrder)))
                         .then(res => res.json())
                         .then(response => {
@@ -51,8 +54,8 @@ class MainController {
                                 res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
                             }
                         });
-                    console.log(await commitOrder);
-                };
+                    console.log('Бесплатный продукт был добавлен в последний заказ', await commitOrder);
+             };
 
                 fetchEditOrder(getOrder());
             }
