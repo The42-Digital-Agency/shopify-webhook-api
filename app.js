@@ -1,8 +1,7 @@
 require('dotenv').config();
 const express  = require('express');
 const app      = express();
-const db       = require('./models/index');
-const root     = require('./routes/index');
+const router     = require('./routes/mainRouter');
 app.use(
     express.json({
         limit: '50mb',
@@ -15,9 +14,7 @@ app.use(
 const PORT = process.env.PORT || 3300;
 const start = async () => {
     try {
-        await db.sequelize.sync();
-        await db.sequelize.authenticate();
-        app.use('/', root);
+        app.use('/', router);
         app.listen(PORT, () => {
             console.log('Server is working on port 3300');
         })

@@ -1,5 +1,5 @@
 function getOrder() {
-    const getOrderQuery = `
+  const getOrderQuery = `
     query {
         orders(first:1, reverse: true) {
           edges {
@@ -10,7 +10,7 @@ function getOrder() {
         }
       }
     `;
-    return getOrderQuery;
+  return getOrderQuery;
 }
 
 function getProduct(reqData) {
@@ -27,4 +27,4 @@ function getProduct(reqData) {
   return getProductQuery;
 }
 
-module.exports = {getOrder, getProduct};
+module.exports = { getOrder, getProduct };

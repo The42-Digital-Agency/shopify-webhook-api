@@ -1,7 +1,7 @@
 const fetch                                        = require('node-fetch');
 const requestStructure                             = require('../requestOptions/requestOptions');
 const { startEdit, addVariantToOrder, commitEdit } = require('../graphqlRequests/mutations');
-const getOrder = require('../graphqlRequests/queries');
+const { getOrder } = require('../graphqlRequests/queries');
 class MainController {
     async getWebHook(req, res) {
         try {
