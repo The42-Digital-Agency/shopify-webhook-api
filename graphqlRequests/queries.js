@@ -14,15 +14,15 @@ function getOrder() {
 }
 
 function getProduct(reqData) {
-  const getProductQuery = `{
-      products (first:1, query:"sku:${reqData}") {
+  const getProductQuery = `query {
+    productVariants(first: 1, query: "sku:${reqData}") {
       edges {
         node {
           id
         }
       }
     }
-  }
+  }  
   `;
   return getProductQuery;
 }

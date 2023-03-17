@@ -11,7 +11,7 @@ function startEdit(orderId) {
 
 function addVariantToOrder(calcultedOrderId, variantId) {
     const addVariantToOrderMutation = `mutation addVariantToOrder{
-        orderEditAddVariant(id: ${calcultedOrderId}, variantId: "${variantId}", quantity: 1){
+        orderEditAddVariant(id: ${calcultedOrderId}, variantId: ${variantId}, quantity: 1){
           calculatedOrder {
             id
             addedLineItems(first:5) {
@@ -30,7 +30,6 @@ function addVariantToOrder(calcultedOrderId, variantId) {
         }
       }
     `;
-
     return addVariantToOrderMutation
 };
 
