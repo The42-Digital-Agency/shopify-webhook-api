@@ -1,13 +1,13 @@
-const fetch                                                    = require('node-fetch');
-const db                                                       = require('../models/index');
-const requestStructure                                         = require('../requestOptions/requestOptions');
-const { startEdit, addVariantToOrder, commitEdit }             = require('../graphqlRequests/mutations');
-const { getOrder, getProduct }                                 = require('../graphqlRequests/queries');
+const fetch = require('node-fetch');
+const db = require('../models/index');
+const requestStructure = require('../requestOptions/requestOptions');
+const { startEdit, addVariantToOrder, commitEdit } = require('../graphqlRequests/mutations');
+const { getOrder, getProduct } = require('../graphqlRequests/queries');
 class MainController {
-    async getProductSKU (req, res) {
+    async getProductSKU(req, res) {
         try {
-            if(req.body.sku) {
-                await db.products.destroy({ truncate: true }); 
+            if (req.body.sku) {
+                await db.products.destroy({ truncate: true });
             }
             const saveSKU = await db.products.create({
                 sku: req.body.sku
@@ -15,7 +15,7 @@ class MainController {
             await saveSKU.save();
             res.json(`SKU ${req.body.sku} был успешно сохранен`);
         }
-        catch(e) {
+        catch (e) {
             console.log(e);
         }
     };
@@ -26,62 +26,36 @@ class MainController {
                 res.status(200).send();
                 const getPresent = await db.products.findAll();
                 const fetchEditOrder = async (args) => {
-                    const freeProduct = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(getProduct(getPresent[0].sku)))
-                    .then(res => res.json())
-                    .then(response => {
-                        try {
-                            return JSON.stringify(response.data.productVariants.edges[0].node.id);
-                        }
-                        catch (e) {
-                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
-                            console.log(e);
-                        }
-                    });
+                    const freeProduct = await fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(getProduct(getPresent[0].sku)))
+                        .then(res => res.json())
+                        .catch(e =>
+                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(e)}`)
+                        )
 
-                    const lastOrderId = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(args))
+                    const lastOrderId = await fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(args))
                         .then(res => res.json())
-                        .then(response => {
-                            try {
-                                return JSON.stringify(response.data.orders.edges[0].node.id);
-                            }
-                            catch (e) {
-                                res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
-                            }
-                        });
-                    const editOrder = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(startEdit(await lastOrderId)))
+                        .catch(e =>
+                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(e)}`)
+                        );
+                    const editOrder = await fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(startEdit(lastOrderId.data.orders.edges[0].node.id)))
                         .then(res => res.json())
-                        .then(response => {
-                            try {
-                                return JSON.stringify(response.data.orderEditBegin.calculatedOrder.id);
-                            }
-                            catch (e) {
-                                res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
-                            }
-                        });
+                        .catch(e =>
+                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(e)}`)
+                        );
 
-                    const orderEdit = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(addVariantToOrder(await editOrder, await freeProduct)))
+                    const orderEdit = await fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(addVariantToOrder(JSON.stringify(editOrder.data.orderEditBegin.calculatedOrder.id), freeProduct.data.productVariants.edges[0].node.id)))
                         .then(res => res.json())
-                        .then(response => {
-                            try {
-                                return JSON.stringify(response);
-                            }
-                            catch (e) {
-                                res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
-                            }
-                        });
-                        console.log('Последний заказ был успешно отредактирован',await orderEdit);
-                    const commitOrder = fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(commitEdit(await editOrder)))
+                        .catch(e =>
+                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(e)}`)
+                        );
+                    console.log('Последний заказ был успешно отредактирован', JSON.stringify(orderEdit));
+                    const commitOrder = await fetch(process.env.shopUrl + `/admin/api/2023-01/graphql.json`, requestStructure(commitEdit(editOrder.data.orderEditBegin.calculatedOrder.id)))
                         .then(res => res.json())
-                        .then(response => {
-                            try {
-                                return JSON.stringify(response);
-                            }
-                            catch (e) {
-                                res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(response)}`);
-                            }
-                        });
-                    console.log('Бесплатный продукт был добавлен в последний заказ', await commitOrder);
-             };
+                        .catch(e =>
+                            res.status(300).json(`Проверьте корректность данных и формат ввода. Ошибка - ${JSON.stringify(e)}`)
+                        );
+                    console.log('Бесплатный продукт был добавлен в последний заказ', JSON.stringify(commitOrder));
+                };
 
                 fetchEditOrder(getOrder());
             }

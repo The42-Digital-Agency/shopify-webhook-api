@@ -1,6 +1,6 @@
 function startEdit(orderId) {
     const startMutation = `mutation beginEdit {
-        orderEditBegin(id: ${orderId}) {
+        orderEditBegin(id: "${orderId}") {
             calculatedOrder {
                 id
             }
@@ -11,7 +11,7 @@ function startEdit(orderId) {
 
 function addVariantToOrder(calcultedOrderId, variantId) {
     const addVariantToOrderMutation = `mutation addVariantToOrder{
-        orderEditAddVariant(id: ${calcultedOrderId}, variantId: ${variantId}, quantity: 1){
+        orderEditAddVariant(id: ${calcultedOrderId}, variantId: "${variantId}", quantity: 1){
           calculatedOrder {
             id
             addedLineItems(first:5) {
@@ -35,7 +35,7 @@ function addVariantToOrder(calcultedOrderId, variantId) {
 
 function commitEdit(calcultedOrderId) {
     const commitEditMutation = `mutation commitEdit {
-        orderEditCommit(id: ${calcultedOrderId}, notifyCustomer: false, staffNote: "I edited the order! It was me!") {
+        orderEditCommit(id: "${calcultedOrderId}", notifyCustomer: false, staffNote: "I edited the order! It was me!") {
           order {
             id
           }
